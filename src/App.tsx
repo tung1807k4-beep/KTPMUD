@@ -25,6 +25,7 @@ import {
 import { supabase } from './supabase';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Session } from '@supabase/supabase-js';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export type Task = {
   id: string;
@@ -642,11 +643,74 @@ export default function App() {
         )}
 
         {currentView === 'analytics' && (
-          <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-[4px]">
-            <div className="text-center">
-              <BarChart2 className="mx-auto mb-4 text-text-muted" size={32} />
-              <h2 className="text-[18px] text-text-main font-bold mb-2">Phân tích</h2>
-              <p className="text-[13px] text-text-secondary">Tính năng đang được phát triển</p>
+          <div className="flex-1 flex flex-col">
+            <div className="mb-8">
+              <h2 className="text-[11px] uppercase tracking-[2px] text-text-dim mb-2">Thống kê</h2>
+              <p className="text-[14px] text-text-secondary">Tổng quan về tiến độ công việc</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <div className="bg-surface-container border border-border p-6 rounded-[4px]">
+                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">Tổng công việc</h3>
+                <p className="text-[32px] font-light text-text-main">{tasks.length}</p>
+              </div>
+              <div className="bg-surface-container border border-border p-6 rounded-[4px]">
+                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">Cần làm</h3>
+                <p className="text-[32px] font-light text-text-main">{tasks.filter(t => t.status === 'todo').length}</p>
+              </div>
+              <div className="bg-surface-container border border-border p-6 rounded-[4px]">
+                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">Đang làm</h3>
+                <p className="text-[32px] font-light text-primary">{tasks.filter(t => t.status === 'doing').length}</p>
+              </div>
+              <div className="bg-surface-container border border-border p-6 rounded-[4px]">
+                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">Hoàn thành</h3>
+                <p className="text-[32px] font-light text-green-500">{tasks.filter(t => t.status === 'done').length}</p>
+              </div>
+            </div>
+
+            <div className="bg-surface-container border border-border p-6 rounded-[4px] flex-1 min-h-[400px] flex flex-col">
+              <h3 className="text-[13px] uppercase tracking-[1px] text-text-main mb-6">Tỷ lệ trạng thái</h3>
+              <div className="flex-1 w-full">
+                {tasks.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Cần làm', value: tasks.filter(t => t.status === 'todo').length, color: '#666666' },
+                          { name: 'Đang làm', value: tasks.filter(t => t.status === 'doing').length, color: '#c5a059' },
+                          { name: 'Hoàn thành', value: tasks.filter(t => t.status === 'done').length, color: '#22c55e' },
+                        ].filter(d => d.value > 0)}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={80}
+                        outerRadius={120}
+                        paddingAngle={5}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        {
+                          [
+                            { name: 'Cần làm', value: tasks.filter(t => t.status === 'todo').length, color: '#666666' },
+                            { name: 'Đang làm', value: tasks.filter(t => t.status === 'doing').length, color: '#c5a059' },
+                            { name: 'Hoàn thành', value: tasks.filter(t => t.status === 'done').length, color: '#22c55e' },
+                          ].filter(d => d.value > 0).map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))
+                        }
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#0d0d0d', borderColor: '#1a1a1a', borderRadius: '4px', color: '#fff' }}
+                        itemStyle={{ color: '#fff' }}
+                      />
+                      <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-full text-[13px] text-text-muted">
+                    Chưa có dữ liệu công việc
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
