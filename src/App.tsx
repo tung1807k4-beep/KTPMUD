@@ -240,7 +240,7 @@ export default function App() {
       .channel('schema-db-changes')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'tasks' },
+        { event: '*', schema: 'public', table: 'tasks', filter: `user_id=eq.${session.user.id}` },
         (payload) => {
           if (payload.eventType === 'INSERT') {
             setTasks(prev => {
@@ -296,6 +296,7 @@ export default function App() {
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
+      .eq('user_id', session.user.id)
       .order('created_at', { ascending: false });
     
     if (error) {
@@ -346,6 +347,7 @@ export default function App() {
           status: taskToAdd.status,
           priority: taskToAdd.priority,
           due_date: taskToAdd.due_date,
+          user_id: session.user.id
         }
       ])
       .select();
@@ -369,7 +371,8 @@ export default function App() {
     const { error } = await supabase
       .from('tasks')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', session.user.id);
       
     if (error) {
       console.error('Error deleting task:', error);
@@ -397,7 +400,8 @@ export default function App() {
         priority: editingTask.priority,
         due_date: editingTask.due_date || null,
       })
-      .eq('id', editingTask.id);
+      .eq('id', editingTask.id)
+      .eq('user_id', session.user.id);
 
     if (error) {
       console.error('Error updating task:', error);
@@ -411,7 +415,7 @@ export default function App() {
   const handleClearAllTasks = async () => {
     if (!session) return;
     try {
-      const { error } = await supabase.from('tasks').delete().neq('id', 'dummy');
+      const { error } = await supabase.from('tasks').delete().eq('user_id', session.user.id);
       if (error) throw error;
       setTasks([]);
       showToast(language === 'en' ? 'All data cleared successfully!' : 'Đã xóa toàn bộ dữ liệu thành công!', 'success');
@@ -437,7 +441,8 @@ export default function App() {
       const { error } = await supabase
         .from('tasks')
         .update({ status: newStatus })
-        .eq('id', draggableId);
+        .eq('id', draggableId)
+        .eq('user_id', session.user.id);
 
       if (error) {
         console.error('Error updating task status:', error);
@@ -488,6 +493,7 @@ export default function App() {
     }
 
     return (
+      // @ts-ignore
       <Draggable key={task.id} draggableId={task.id} index={index}>
         {(provided) => (
           <div
