@@ -49,7 +49,55 @@ const translations = {
     analytics: 'Phân tích',
     archive: 'Lưu trữ',
     newProject: 'Dự án mới',
-    help: 'Trợ giúp'
+    help: 'Trợ giúp',
+    chiefArchitect: 'Kiến trúc sư Trưởng',
+    searchPlaceholder: 'Tìm kiếm công việc...',
+    notifications: 'Thông báo',
+    markAllRead: 'Đánh dấu đã đọc tất cả',
+    noNewNotif: 'Không có thông báo mới',
+    version: 'V2.4.0 • 2024',
+    greeting: 'Chào buổi sáng',
+    projectBoard: 'Bảng Dự Án',
+    workspace: 'Không gian làm việc tối giản / Giai đoạn Q4',
+    allPriorities: 'Tất cả độ ưu tiên',
+    priorityHighFilter: 'Ưu tiên: Cao',
+    priorityMedFilter: 'Ưu tiên: Trung bình',
+    priorityLowFilter: 'Ưu tiên: Thấp',
+    addTask: 'Thêm công việc',
+    todo: 'Cần làm',
+    doing: 'Đang làm',
+    done: 'Hoàn thành',
+    featureDev: 'Tính năng đang được phát triển',
+    statistics: 'Thống kê',
+    overview: 'Tổng quan về tiến độ công việc',
+    totalTasks: 'Tổng công việc',
+    statusRatio: 'Tỷ lệ trạng thái',
+    priorityDistribution: 'Phân bố độ ưu tiên',
+    noTaskData: 'Chưa có dữ liệu công việc',
+    high: 'Cao',
+    medium: 'Trung bình',
+    low: 'Thấp',
+    addNewTaskTitle: 'Thêm công việc mới',
+    editTaskTitle: 'Chỉnh sửa công việc',
+    taskTitlePlaceholder: 'Nhập tiêu đề công việc...',
+    taskDescPlaceholder: 'Nhập mô tả chi tiết...',
+    titleLabel: 'Tiêu đề',
+    descLabel: 'Mô tả',
+    statusLabel: 'Trạng thái',
+    priorityLabel: 'Độ ưu tiên',
+    dueDateLabel: 'Ngày đến hạn',
+    cancel: 'Hủy',
+    addNew: 'Thêm mới',
+    saveChanges: 'Lưu thay đổi',
+    overdue: 'Quá hạn: ',
+    dueSoon: 'Sắp đến hạn: ',
+    deadline: 'Hạn chót: ',
+    closedAt: 'Đóng lúc ',
+    adminPro: 'Quản trị Pro',
+    enterprisePlan: 'Gói Doanh nghiệp',
+    loginGoogle: 'Đăng nhập bằng Google',
+    loginMessage: 'Đăng nhập để truy cập không gian làm việc của bạn',
+    toastAddSuccess: 'Thêm công việc thành công!'
   },
   en: {
     dashboard: 'Dashboard',
@@ -58,7 +106,55 @@ const translations = {
     analytics: 'Analytics',
     archive: 'Archive',
     newProject: 'New Project',
-    help: 'Help'
+    help: 'Help',
+    chiefArchitect: 'Chief Architect',
+    searchPlaceholder: 'Search tasks...',
+    notifications: 'Notifications',
+    markAllRead: 'Mark all as read',
+    noNewNotif: 'No new notifications',
+    version: 'V2.4.0 • 2024',
+    greeting: 'Good morning',
+    projectBoard: 'Project Board',
+    workspace: 'Minimalist Workspace / Q4 Phase',
+    allPriorities: 'All Priorities',
+    priorityHighFilter: 'Priority: High',
+    priorityMedFilter: 'Priority: Medium',
+    priorityLowFilter: 'Priority: Low',
+    addTask: 'Add task',
+    todo: 'To Do',
+    doing: 'Doing',
+    done: 'Done',
+    featureDev: 'Feature under development',
+    statistics: 'Statistics',
+    overview: 'Work progress overview',
+    totalTasks: 'Total Tasks',
+    statusRatio: 'Status Ratio',
+    priorityDistribution: 'Priority Distribution',
+    noTaskData: 'No task data available',
+    high: 'High',
+    medium: 'Medium',
+    low: 'Low',
+    addNewTaskTitle: 'Add New Task',
+    editTaskTitle: 'Edit Task',
+    taskTitlePlaceholder: 'Enter task title...',
+    taskDescPlaceholder: 'Enter detailed description...',
+    titleLabel: 'Title',
+    descLabel: 'Description',
+    statusLabel: 'Status',
+    priorityLabel: 'Priority',
+    dueDateLabel: 'Due Date',
+    cancel: 'Cancel',
+    addNew: 'Add New',
+    saveChanges: 'Save Changes',
+    overdue: 'Overdue: ',
+    dueSoon: 'Due soon: ',
+    deadline: 'Deadline: ',
+    closedAt: 'Closed at ',
+    adminPro: 'Admin Pro',
+    enterprisePlan: 'Enterprise Plan',
+    loginGoogle: 'Sign in with Google',
+    loginMessage: 'Sign in to access your workspace',
+    toastAddSuccess: 'Task added successfully!'
   }
 };
 
@@ -260,7 +356,7 @@ export default function App() {
       setTasks(previousTasks);
     } else if (data && data.length > 0) {
       setTasks(prev => prev.map(t => t.id === tempId ? data[0] : t));
-      showToast('Thêm công việc thành công!');
+      showToast(translations[language].toastAddSuccess);
     }
   };
 
@@ -436,7 +532,7 @@ export default function App() {
               <div className={`flex items-center gap-2 ${dateColorClass}`}>
                 {isDone ? <CheckCircle size={12} /> : <Calendar size={12} />}
                 <span className="text-[11px]">
-                  {isDone ? 'Đóng lúc ' : ''}
+                  {isDone ? translations[language].closedAt : ''}
                   {displayDate}
                 </span>
               </div>
@@ -455,8 +551,8 @@ export default function App() {
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
             <PenTool size={32} />
           </div>
-          <h1 className="text-[24px] font-bold text-text-main tracking-[2px] uppercase mb-2">Quản trị Pro</h1>
-          <p className="text-[13px] text-text-secondary mb-10">Đăng nhập để truy cập không gian làm việc của bạn</p>
+          <h1 className="text-[24px] font-bold text-text-main tracking-[2px] uppercase mb-2">{translations[language].adminPro}</h1>
+          <p className="text-[13px] text-text-secondary mb-10">{translations[language].loginMessage}</p>
           <button 
             onClick={handleLogin}
             className="w-full bg-surface-container border border-border hover:border-primary text-text-main py-3 px-4 rounded-[4px] flex items-center justify-center gap-3 transition-all cursor-pointer"
@@ -469,7 +565,7 @@ export default function App() {
                 <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/>
               </g>
             </svg>
-            <span className="text-[13px] font-medium">Đăng nhập bằng Google</span>
+            <span className="text-[13px] font-medium">{translations[language].loginGoogle}</span>
           </button>
         </div>
       </div>
@@ -485,8 +581,8 @@ export default function App() {
             <PenTool size={24} />
           </div>
           <div>
-            <h2 className="text-[18px] font-bold text-primary tracking-[4px] uppercase">Quản trị Pro</h2>
-            <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold mt-1">Gói Doanh nghiệp</p>
+            <h2 className="text-[18px] font-bold text-primary tracking-[4px] uppercase">{translations[language].adminPro}</h2>
+            <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold mt-1">{translations[language].enterprisePlan}</p>
           </div>
         </div>
         <nav className="flex-1">
@@ -555,7 +651,7 @@ export default function App() {
             <span>{translations[language].help}</span>
           </a>
           <div className="text-[10px] text-text-muted tracking-[1px] mt-2">
-            V2.4.0 • 2024
+            {translations[language].version}
           </div>
         </div>
       </aside>
@@ -565,12 +661,12 @@ export default function App() {
         {/* TopNavBar Component */}
         <header className="flex justify-between items-center w-full mb-12">
           <div className="flex items-center gap-8 flex-1">
-            <h1 className="text-[32px] font-light tracking-[-1px] text-text-main">Kiến trúc sư Trưởng</h1>
+            <h1 className="text-[32px] font-light tracking-[-1px] text-text-main">{translations[language].chiefArchitect}</h1>
             <div className="relative w-full max-w-md ml-8">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
               <input 
                 className="w-full bg-surface-container border border-border rounded-[4px] py-2 pl-10 pr-4 focus:border-primary transition-all text-[13px] text-text-main outline-none" 
-                placeholder="Tìm kiếm công việc..." 
+                placeholder={translations[language].searchPlaceholder} 
                 type="text" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -596,13 +692,13 @@ export default function App() {
                   <div className="fixed inset-0 z-40" onClick={() => setIsNotifOpen(false)} />
                   <div className="absolute right-0 mt-3 w-80 bg-surface border border-border rounded-[8px] shadow-xl z-50 overflow-hidden">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface-container">
-                      <h3 className="text-[13px] font-bold text-text-main">Thông báo</h3>
+                      <h3 className="text-[13px] font-bold text-text-main">{translations[language].notifications}</h3>
                       {notifications.length > 0 && (
                         <button 
                           onClick={markAllAsRead}
                           className="text-[11px] text-primary hover:text-primary/80 transition-colors cursor-pointer"
                         >
-                          Đánh dấu đã đọc tất cả
+                          {translations[language].markAllRead}
                         </button>
                       )}
                     </div>
@@ -617,11 +713,11 @@ export default function App() {
                                 </span>
                                 <div className="flex-1">
                                   <p className="text-[13px] text-text-main leading-tight mb-1">
-                                    <span className="font-semibold">{notif.type === 'overdue' ? 'Quá hạn: ' : 'Sắp đến hạn: '}</span>
+                                    <span className="font-semibold">{notif.type === 'overdue' ? translations[language].overdue : translations[language].dueSoon}</span>
                                     {notif.task.title}
                                   </p>
                                   <p className="text-[11px] text-text-muted">
-                                    Hạn chót: {new Date(notif.task.due_date!).toLocaleDateString('vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                    {translations[language].deadline}{new Date(notif.task.due_date!).toLocaleDateString(language === 'en' ? 'en-US' : 'vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
                                   </p>
                                 </div>
                               </div>
@@ -630,7 +726,7 @@ export default function App() {
                         </ul>
                       ) : (
                         <div className="px-4 py-8 text-center">
-                          <p className="text-[13px] text-text-muted">Không có thông báo mới</p>
+                          <p className="text-[13px] text-text-muted">{translations[language].noNewNotif}</p>
                         </div>
                       )}
                     </div>
@@ -645,7 +741,7 @@ export default function App() {
               <Settings size={18} />
             </button>
             <div className="flex items-center gap-3">
-              <span className="text-[12px] text-text-secondary">Chào buổi sáng, {session.user?.user_metadata?.full_name || 'Người dùng'}</span>
+              <span className="text-[12px] text-text-secondary">{translations[language].greeting}, {session.user?.user_metadata?.full_name || 'Người dùng'}</span>
               <img 
                 alt="User profile avatar" 
                 className="w-8 h-8 rounded-full object-cover border border-border-hover bg-border" 
@@ -660,8 +756,8 @@ export default function App() {
           <div className="flex-1">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-[11px] uppercase tracking-[2px] text-text-dim mb-2">Bảng Dự Án</h2>
-                <p className="text-[14px] text-text-secondary">Không gian làm việc tối giản / Giai đoạn Q4</p>
+                <h2 className="text-[11px] uppercase tracking-[2px] text-text-dim mb-2">{translations[language].projectBoard}</h2>
+                <p className="text-[14px] text-text-secondary">{translations[language].workspace}</p>
               </div>
               <div className="flex gap-3">
                 <div className="flex items-center gap-2 bg-transparent border border-border-hover rounded-[4px] px-3 py-1.5 focus-within:border-primary transition-colors">
@@ -671,17 +767,17 @@ export default function App() {
                     onChange={(e) => setPriorityFilter(e.target.value)}
                     className="bg-transparent text-[11px] uppercase text-text-main outline-none cursor-pointer appearance-none"
                   >
-                    <option value="ALL" className="bg-surface">Tất cả độ ưu tiên</option>
-                    <option value="CAO" className="bg-surface">Ưu tiên: Cao</option>
-                    <option value="TRUNG BÌNH" className="bg-surface">Ưu tiên: Trung bình</option>
-                    <option value="THẤP" className="bg-surface">Ưu tiên: Thấp</option>
+                    <option value="ALL" className="bg-surface">{translations[language].allPriorities}</option>
+                    <option value="CAO" className="bg-surface">{translations[language].priorityHighFilter}</option>
+                    <option value="TRUNG BÌNH" className="bg-surface">{translations[language].priorityMedFilter}</option>
+                    <option value="THẤP" className="bg-surface">{translations[language].priorityLowFilter}</option>
                   </select>
                 </div>
                 <button 
                   onClick={() => setIsModalOpen(true)}
                   className="bg-transparent border border-border-hover text-text-main py-1.5 px-3 text-[11px] uppercase cursor-pointer hover:border-primary transition-colors flex items-center gap-2"
                 >
-                  <Plus size={14} /> Thêm công việc
+                  <Plus size={14} /> {translations[language].addTask}
                 </button>
               </div>
             </div>
@@ -694,7 +790,7 @@ export default function App() {
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between mb-6 border-b border-border pb-2">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-[11px] uppercase tracking-[2px] text-text-dim">Cần làm</h3>
+                      <h3 className="text-[11px] uppercase tracking-[2px] text-text-dim">{translations[language].todo}</h3>
                       <span className="text-[11px] text-text-muted">({todoTasks.length})</span>
                     </div>
                     <button 
@@ -722,7 +818,7 @@ export default function App() {
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between mb-6 border-b border-border pb-2">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-[11px] uppercase tracking-[2px] text-text-dim">Đang làm</h3>
+                      <h3 className="text-[11px] uppercase tracking-[2px] text-text-dim">{translations[language].doing}</h3>
                       <span className="text-[11px] text-text-muted">({doingTasks.length})</span>
                     </div>
                     <button 
@@ -750,7 +846,7 @@ export default function App() {
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center justify-between mb-6 border-b border-border pb-2">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-[11px] uppercase tracking-[2px] text-text-dim">Hoàn thành</h3>
+                      <h3 className="text-[11px] uppercase tracking-[2px] text-text-dim">{translations[language].done}</h3>
                       <span className="text-[11px] text-text-muted">({doneTasks.length})</span>
                     </div>
                     <button 
@@ -783,8 +879,8 @@ export default function App() {
           <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-[4px]">
             <div className="text-center">
               <LayoutGrid className="mx-auto mb-4 text-text-muted" size={32} />
-              <h2 className="text-[18px] text-text-main font-bold mb-2">Bảng điều khiển</h2>
-              <p className="text-[13px] text-text-secondary">Tính năng đang được phát triển</p>
+              <h2 className="text-[18px] text-text-main font-bold mb-2">{translations[language].dashboard}</h2>
+              <p className="text-[13px] text-text-secondary">{translations[language].featureDev}</p>
             </div>
           </div>
         )}
@@ -793,8 +889,8 @@ export default function App() {
           <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-[4px]">
             <div className="text-center">
               <Users className="mx-auto mb-4 text-text-muted" size={32} />
-              <h2 className="text-[18px] text-text-main font-bold mb-2">Nhóm</h2>
-              <p className="text-[13px] text-text-secondary">Tính năng đang được phát triển</p>
+              <h2 className="text-[18px] text-text-main font-bold mb-2">{translations[language].team}</h2>
+              <p className="text-[13px] text-text-secondary">{translations[language].featureDev}</p>
             </div>
           </div>
         )}
@@ -802,41 +898,41 @@ export default function App() {
         {currentView === 'analytics' && (
           <div className="flex-1 flex flex-col">
             <div className="mb-8">
-              <h2 className="text-[11px] uppercase tracking-[2px] text-text-dim mb-2">Thống kê</h2>
-              <p className="text-[14px] text-text-secondary">Tổng quan về tiến độ công việc</p>
+              <h2 className="text-[11px] uppercase tracking-[2px] text-text-dim mb-2">{translations[language].statistics}</h2>
+              <p className="text-[14px] text-text-secondary">{translations[language].overview}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <div className="bg-surface-container border border-border p-6 rounded-[4px]">
-                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">Tổng công việc</h3>
+                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">{translations[language].totalTasks}</h3>
                 <p className="text-[32px] font-light text-text-main">{tasks.length}</p>
               </div>
               <div className="bg-surface-container border border-border p-6 rounded-[4px]">
-                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">Cần làm</h3>
+                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">{translations[language].todo}</h3>
                 <p className="text-[32px] font-light text-text-main">{tasks.filter(t => t.status === 'todo').length}</p>
               </div>
               <div className="bg-surface-container border border-border p-6 rounded-[4px]">
-                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">Đang làm</h3>
+                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">{translations[language].doing}</h3>
                 <p className="text-[32px] font-light text-primary">{tasks.filter(t => t.status === 'doing').length}</p>
               </div>
               <div className="bg-surface-container border border-border p-6 rounded-[4px]">
-                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">Hoàn thành</h3>
+                <h3 className="text-[11px] uppercase tracking-[1px] text-text-muted mb-2">{translations[language].done}</h3>
                 <p className="text-[32px] font-light text-green-500">{tasks.filter(t => t.status === 'done').length}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-[400px]">
               <div className="bg-surface-container border border-border p-6 rounded-[4px] flex flex-col">
-                <h3 className="text-[13px] uppercase tracking-[1px] text-text-main mb-6">Tỷ lệ trạng thái</h3>
+                <h3 className="text-[13px] uppercase tracking-[1px] text-text-main mb-6">{translations[language].statusRatio}</h3>
                 <div className="flex-1 w-full min-h-[300px]">
                   {tasks.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={[
-                            { name: 'Cần làm', value: tasks.filter(t => t.status === 'todo').length, color: '#666666' },
-                            { name: 'Đang làm', value: tasks.filter(t => t.status === 'doing').length, color: '#c5a059' },
-                            { name: 'Hoàn thành', value: tasks.filter(t => t.status === 'done').length, color: '#22c55e' },
+                            { name: translations[language].todo, value: tasks.filter(t => t.status === 'todo').length, color: '#666666' },
+                            { name: translations[language].doing, value: tasks.filter(t => t.status === 'doing').length, color: '#c5a059' },
+                            { name: translations[language].done, value: tasks.filter(t => t.status === 'done').length, color: '#22c55e' },
                           ].filter(d => d.value > 0)}
                           cx="50%"
                           cy="50%"
@@ -848,9 +944,9 @@ export default function App() {
                         >
                           {
                             [
-                              { name: 'Cần làm', value: tasks.filter(t => t.status === 'todo').length, color: '#666666' },
-                              { name: 'Đang làm', value: tasks.filter(t => t.status === 'doing').length, color: '#c5a059' },
-                              { name: 'Hoàn thành', value: tasks.filter(t => t.status === 'done').length, color: '#22c55e' },
+                              { name: translations[language].todo, value: tasks.filter(t => t.status === 'todo').length, color: '#666666' },
+                              { name: translations[language].doing, value: tasks.filter(t => t.status === 'doing').length, color: '#c5a059' },
+                              { name: translations[language].done, value: tasks.filter(t => t.status === 'done').length, color: '#22c55e' },
                             ].filter(d => d.value > 0).map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.color} />
                             ))
@@ -865,22 +961,22 @@ export default function App() {
                     </ResponsiveContainer>
                   ) : (
                     <div className="flex items-center justify-center h-full text-[13px] text-text-muted">
-                      Chưa có dữ liệu công việc
+                      {translations[language].noTaskData}
                     </div>
                   )}
                 </div>
               </div>
 
               <div className="bg-surface-container border border-border p-6 rounded-[4px] flex flex-col">
-                <h3 className="text-[13px] uppercase tracking-[1px] text-text-main mb-6">Phân bố độ ưu tiên</h3>
+                <h3 className="text-[13px] uppercase tracking-[1px] text-text-main mb-6">{translations[language].priorityDistribution}</h3>
                 <div className="flex-1 w-full min-h-[300px]">
                   {tasks.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={[
-                          { name: 'Cao', value: tasks.filter(t => t.priority === 'CAO').length, color: '#ef4444' },
-                          { name: 'Trung bình', value: tasks.filter(t => t.priority === 'TRUNG BÌNH').length, color: '#f97316' },
-                          { name: 'Thấp', value: tasks.filter(t => t.priority === 'THẤP').length, color: '#666666' },
+                          { name: translations[language].high, value: tasks.filter(t => t.priority === 'CAO').length, color: '#ef4444' },
+                          { name: translations[language].medium, value: tasks.filter(t => t.priority === 'TRUNG BÌNH').length, color: '#f97316' },
+                          { name: translations[language].low, value: tasks.filter(t => t.priority === 'THẤP').length, color: '#666666' },
                         ]}
                         margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
                       >
@@ -895,9 +991,9 @@ export default function App() {
                         <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                           {
                             [
-                              { name: 'Cao', value: tasks.filter(t => t.priority === 'CAO').length, color: '#ef4444' },
-                              { name: 'Trung bình', value: tasks.filter(t => t.priority === 'TRUNG BÌNH').length, color: '#f97316' },
-                              { name: 'Thấp', value: tasks.filter(t => t.priority === 'THẤP').length, color: '#666666' },
+                              { name: translations[language].high, value: tasks.filter(t => t.priority === 'CAO').length, color: '#ef4444' },
+                              { name: translations[language].medium, value: tasks.filter(t => t.priority === 'TRUNG BÌNH').length, color: '#f97316' },
+                              { name: translations[language].low, value: tasks.filter(t => t.priority === 'THẤP').length, color: '#666666' },
                             ].map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.color} />
                             ))
@@ -907,7 +1003,7 @@ export default function App() {
                     </ResponsiveContainer>
                   ) : (
                     <div className="flex items-center justify-center h-full text-[13px] text-text-muted">
-                      Chưa có dữ liệu công việc
+                      {translations[language].noTaskData}
                     </div>
                   )}
                 </div>
@@ -920,8 +1016,8 @@ export default function App() {
           <div className="flex-1 flex items-center justify-center border border-dashed border-border rounded-[4px]">
             <div className="text-center">
               <Archive className="mx-auto mb-4 text-text-muted" size={32} />
-              <h2 className="text-[18px] text-text-main font-bold mb-2">Lưu trữ</h2>
-              <p className="text-[13px] text-text-secondary">Tính năng đang được phát triển</p>
+              <h2 className="text-[18px] text-text-main font-bold mb-2">{translations[language].archive}</h2>
+              <p className="text-[13px] text-text-secondary">{translations[language].featureDev}</p>
             </div>
           </div>
         )}
@@ -940,60 +1036,60 @@ export default function App() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
           <div className="bg-surface border border-border p-8 rounded-[4px] w-full max-w-md">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-[18px] text-text-main font-bold">Thêm công việc mới</h3>
+              <h3 className="text-[18px] text-text-main font-bold">{translations[language].addNewTaskTitle}</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-text-muted hover:text-text-main">
                 <X size={20} />
               </button>
             </div>
             <form onSubmit={handleAddTask} className="flex flex-col gap-4">
               <div>
-                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Tiêu đề</label>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">{translations[language].titleLabel}</label>
                 <input 
                   required
                   type="text" 
                   value={newTask.title}
                   onChange={e => setNewTask({...newTask, title: e.target.value})}
                   className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none"
-                  placeholder="Nhập tiêu đề công việc..."
+                  placeholder={translations[language].taskTitlePlaceholder}
                 />
               </div>
               <div>
-                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Mô tả</label>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">{translations[language].descLabel}</label>
                 <textarea 
                   value={newTask.description}
                   onChange={e => setNewTask({...newTask, description: e.target.value})}
                   className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none min-h-[100px] resize-none"
-                  placeholder="Nhập mô tả chi tiết..."
+                  placeholder={translations[language].taskDescPlaceholder}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Trạng thái</label>
+                  <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">{translations[language].statusLabel}</label>
                   <select 
                     value={newTask.status}
                     onChange={e => setNewTask({...newTask, status: e.target.value as any})}
                     className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none appearance-none"
                   >
-                    <option value="todo">Cần làm</option>
-                    <option value="doing">Đang làm</option>
-                    <option value="done">Hoàn thành</option>
+                    <option value="todo">{translations[language].todo}</option>
+                    <option value="doing">{translations[language].doing}</option>
+                    <option value="done">{translations[language].done}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Độ ưu tiên</label>
+                  <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">{translations[language].priorityLabel}</label>
                   <select 
                     value={newTask.priority}
                     onChange={e => setNewTask({...newTask, priority: e.target.value as any})}
                     className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none appearance-none"
                   >
-                    <option value="CAO">Cao</option>
-                    <option value="TRUNG BÌNH">Trung bình</option>
-                    <option value="THẤP">Thấp</option>
+                    <option value="CAO">{translations[language].high}</option>
+                    <option value="TRUNG BÌNH">{translations[language].medium}</option>
+                    <option value="THẤP">{translations[language].low}</option>
                   </select>
                 </div>
               </div>
               <div>
-                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Ngày đến hạn</label>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">{translations[language].dueDateLabel}</label>
                 <input 
                   type="date" 
                   value={newTask.due_date || ''}
@@ -1007,13 +1103,13 @@ export default function App() {
                   onClick={() => setIsModalOpen(false)}
                   className="bg-transparent border border-border-hover text-text-main py-2 px-4 text-[11px] uppercase cursor-pointer hover:border-text-muted transition-colors"
                 >
-                  Hủy
+                  {translations[language].cancel}
                 </button>
                 <button 
                   type="submit"
                   className="bg-primary text-background py-2 px-4 text-[11px] uppercase font-bold cursor-pointer hover:opacity-90 transition-opacity"
                 >
-                  Thêm mới
+                  {translations[language].addNew}
                 </button>
               </div>
             </form>
@@ -1026,46 +1122,46 @@ export default function App() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
           <div className="bg-surface border border-border p-8 rounded-[4px] w-full max-w-md">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-[18px] text-text-main font-bold">Chỉnh sửa công việc</h3>
+              <h3 className="text-[18px] text-text-main font-bold">{translations[language].editTaskTitle}</h3>
               <button onClick={() => setEditingTask(null)} className="text-text-muted hover:text-text-main">
                 <X size={20} />
               </button>
             </div>
             <form onSubmit={updateTask} className="flex flex-col gap-4">
               <div>
-                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Tiêu đề</label>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">{translations[language].titleLabel}</label>
                 <input 
                   required
                   type="text" 
                   value={editingTask.title}
                   onChange={e => setEditingTask({...editingTask, title: e.target.value})}
                   className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none"
-                  placeholder="Nhập tiêu đề công việc..."
+                  placeholder={translations[language].taskTitlePlaceholder}
                 />
               </div>
               <div>
-                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Mô tả</label>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">{translations[language].descLabel}</label>
                 <textarea 
                   value={editingTask.description}
                   onChange={e => setEditingTask({...editingTask, description: e.target.value})}
                   className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none min-h-[100px] resize-none"
-                  placeholder="Nhập mô tả chi tiết..."
+                  placeholder={translations[language].taskDescPlaceholder}
                 />
               </div>
               <div>
-                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Độ ưu tiên</label>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">{translations[language].priorityLabel}</label>
                 <select 
                   value={editingTask.priority}
                   onChange={e => setEditingTask({...editingTask, priority: e.target.value as any})}
                   className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none appearance-none"
                 >
-                  <option value="CAO">Cao</option>
-                  <option value="TRUNG BÌNH">Trung bình</option>
-                  <option value="THẤP">Thấp</option>
+                  <option value="CAO">{translations[language].high}</option>
+                  <option value="TRUNG BÌNH">{translations[language].medium}</option>
+                  <option value="THẤP">{translations[language].low}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Ngày đến hạn</label>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">{translations[language].dueDateLabel}</label>
                 <input 
                   type="date" 
                   value={editingTask.due_date || ''}
@@ -1079,13 +1175,13 @@ export default function App() {
                   onClick={() => setEditingTask(null)}
                   className="bg-transparent border border-border-hover text-text-main py-2 px-4 text-[11px] uppercase cursor-pointer hover:border-text-muted transition-colors"
                 >
-                  Hủy
+                  {translations[language].cancel}
                 </button>
                 <button 
                   type="submit"
                   className="bg-primary text-background py-2 px-4 text-[11px] uppercase font-bold cursor-pointer hover:opacity-90 transition-opacity"
                 >
-                  Lưu thay đổi
+                  {translations[language].saveChanges}
                 </button>
               </div>
             </form>
