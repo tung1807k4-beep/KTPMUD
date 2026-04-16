@@ -27,7 +27,7 @@ import {
 import { supabase } from './supabase';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Session } from '@supabase/supabase-js';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 export type Task = {
   id: string;
@@ -700,48 +700,92 @@ export default function App() {
               </div>
             </div>
 
-            <div className="bg-surface-container border border-border p-6 rounded-[4px] flex-1 min-h-[400px] flex flex-col">
-              <h3 className="text-[13px] uppercase tracking-[1px] text-text-main mb-6">Tỷ lệ trạng thái</h3>
-              <div className="flex-1 w-full">
-                {tasks.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          { name: 'Cần làm', value: tasks.filter(t => t.status === 'todo').length, color: '#666666' },
-                          { name: 'Đang làm', value: tasks.filter(t => t.status === 'doing').length, color: '#c5a059' },
-                          { name: 'Hoàn thành', value: tasks.filter(t => t.status === 'done').length, color: '#22c55e' },
-                        ].filter(d => d.value > 0)}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={80}
-                        outerRadius={120}
-                        paddingAngle={5}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        {
-                          [
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-[400px]">
+              <div className="bg-surface-container border border-border p-6 rounded-[4px] flex flex-col">
+                <h3 className="text-[13px] uppercase tracking-[1px] text-text-main mb-6">Tỷ lệ trạng thái</h3>
+                <div className="flex-1 w-full min-h-[300px]">
+                  {tasks.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
                             { name: 'Cần làm', value: tasks.filter(t => t.status === 'todo').length, color: '#666666' },
                             { name: 'Đang làm', value: tasks.filter(t => t.status === 'doing').length, color: '#c5a059' },
                             { name: 'Hoàn thành', value: tasks.filter(t => t.status === 'done').length, color: '#22c55e' },
-                          ].filter(d => d.value > 0).map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))
-                        }
-                      </Pie>
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: isDarkMode ? '#0d0d0d' : '#ffffff', borderColor: isDarkMode ? '#1a1a1a' : '#e5e7eb', borderRadius: '4px', color: isDarkMode ? '#fff' : '#111827' }}
-                        itemStyle={{ color: isDarkMode ? '#fff' : '#111827' }}
-                      />
-                      <Legend verticalAlign="bottom" height={36} iconType="circle" />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-[13px] text-text-muted">
-                    Chưa có dữ liệu công việc
-                  </div>
-                )}
+                          ].filter(d => d.value > 0)}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={80}
+                          outerRadius={120}
+                          paddingAngle={5}
+                          dataKey="value"
+                          stroke="none"
+                        >
+                          {
+                            [
+                              { name: 'Cần làm', value: tasks.filter(t => t.status === 'todo').length, color: '#666666' },
+                              { name: 'Đang làm', value: tasks.filter(t => t.status === 'doing').length, color: '#c5a059' },
+                              { name: 'Hoàn thành', value: tasks.filter(t => t.status === 'done').length, color: '#22c55e' },
+                            ].filter(d => d.value > 0).map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))
+                          }
+                        </Pie>
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: isDarkMode ? '#0d0d0d' : '#ffffff', borderColor: isDarkMode ? '#1a1a1a' : '#e5e7eb', borderRadius: '4px', color: isDarkMode ? '#fff' : '#111827' }}
+                          itemStyle={{ color: isDarkMode ? '#fff' : '#111827' }}
+                        />
+                        <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-[13px] text-text-muted">
+                      Chưa có dữ liệu công việc
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-surface-container border border-border p-6 rounded-[4px] flex flex-col">
+                <h3 className="text-[13px] uppercase tracking-[1px] text-text-main mb-6">Phân bố độ ưu tiên</h3>
+                <div className="flex-1 w-full min-h-[300px]">
+                  {tasks.length > 0 ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={[
+                          { name: 'Cao', value: tasks.filter(t => t.priority === 'CAO').length, color: '#ef4444' },
+                          { name: 'Trung bình', value: tasks.filter(t => t.priority === 'TRUNG BÌNH').length, color: '#f97316' },
+                          { name: 'Thấp', value: tasks.filter(t => t.priority === 'THẤP').length, color: '#666666' },
+                        ]}
+                        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? '#1a1a1a' : '#e5e7eb'} vertical={false} />
+                        <XAxis dataKey="name" stroke={isDarkMode ? '#666666' : '#9ca3af'} fontSize={12} tickLine={false} axisLine={false} />
+                        <YAxis stroke={isDarkMode ? '#666666' : '#9ca3af'} fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: isDarkMode ? '#0d0d0d' : '#ffffff', borderColor: isDarkMode ? '#1a1a1a' : '#e5e7eb', borderRadius: '4px', color: isDarkMode ? '#fff' : '#111827' }}
+                          itemStyle={{ color: isDarkMode ? '#fff' : '#111827' }}
+                          cursor={{ fill: isDarkMode ? '#1a1a1a' : '#f3f4f6' }}
+                        />
+                        <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                          {
+                            [
+                              { name: 'Cao', value: tasks.filter(t => t.priority === 'CAO').length, color: '#ef4444' },
+                              { name: 'Trung bình', value: tasks.filter(t => t.priority === 'TRUNG BÌNH').length, color: '#f97316' },
+                              { name: 'Thấp', value: tasks.filter(t => t.priority === 'THẤP').length, color: '#666666' },
+                            ].map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))
+                          }
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-[13px] text-text-muted">
+                      Chưa có dữ liệu công việc
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
