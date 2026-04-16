@@ -14,6 +14,8 @@ interface SettingsModalProps {
   setLanguage: (lang: 'vi' | 'en') => void;
   tasks: Task[];
   onClearAll: () => Promise<void>;
+  projectName: string;
+  onSaveProjectName: (name: string) => void;
 }
 
 const translations = {
@@ -24,7 +26,8 @@ const translations = {
     logoutTitle: 'Đăng xuất tài khoản', logoutDesc: 'Thao tác này sẽ đăng xuất tài khoản của bạn khỏi phiên làm việc hiện tại. Bạn sẽ cần đăng nhập lại.', logoutBtn: 'Đăng xuất ngay',
     userInfo: 'Thông tin Người dùng', notUpdated: 'Chưa cập nhật email', linkMsg: 'Tài khoản của bạn được liên kết qua hệ thống xác thực. Để tiếp tục trải nghiệm an toàn, vui lòng không chia sẻ thông tin đăng nhập.',
     appSettings: 'Cài đặt Giao diện', lightMode: 'Sáng (Light Mode)', darkMode: 'Tối (Dark Mode)', lang: 'Ngôn ngữ (Language)', langMsg: 'Chọn ngôn ngữ giao diện chính (Sẽ áp dụng một số khu vực)', themeMsg: 'Giao diện và ngôn ngữ sẽ được lưu trữ tự động trên thiết bị của bạn qua LocalStorage.',
-    clearWarning: 'Bạn có chắc chắn muốn xóa toàn bộ công việc không? Thao tác này không thể hoàn tác.', confirmClear: 'Xác nhận Xóa', cancel: 'Hủy'
+    clearWarning: 'Bạn có chắc chắn muốn xóa toàn bộ công việc không? Thao tác này không thể hoàn tác.', confirmClear: 'Xác nhận Xóa', cancel: 'Hủy',
+    projectNameLabel: 'Tên dự án hiện tại', saveProjectName: 'Lưu tên dự án'
   },
   en: {
     settings: 'Settings', information: 'Information', appearance: 'Appearance', advanced: 'Advanced', system: 'System',
@@ -33,7 +36,8 @@ const translations = {
     logoutTitle: 'Sign Out Account', logoutDesc: 'This action will log out your account from the current session. You will need to log in again.', logoutBtn: 'Sign Out Now',
     userInfo: 'User Information', notUpdated: 'Email not updated', linkMsg: 'Your account is linked securely. Do not share your login credentials to continue having a safe experience.',
     appSettings: 'Appearance Settings', lightMode: 'Light Mode', darkMode: 'Dark Mode', lang: 'Language', langMsg: 'Select primary user interface language (Applicable partially)', themeMsg: 'Your appearance and language preferences will be automatically saved locally.',
-    clearWarning: 'Are you sure you want to delete all tasks? This action cannot be undone.', confirmClear: 'Confirm Delete', cancel: 'Cancel'
+    clearWarning: 'Are you sure you want to delete all tasks? This action cannot be undone.', confirmClear: 'Confirm Delete', cancel: 'Cancel',
+    projectNameLabel: 'Current Project Name', saveProjectName: 'Save Project Name'
   }
 };
 
@@ -47,11 +51,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   language,
   setLanguage,
   tasks,
-  onClearAll
+  onClearAll,
+  projectName,
+  onSaveProjectName
 }) => {
   const [activeTab, setActiveTab] = useState<'info' | 'appearance' | 'system' | 'advanced'>('info');
   const [confirmClear, setConfirmClear] = useState(false);
+  const [localProjectName, setLocalProjectName] = useState(projectName);
   const t = translations[language];
+
+  // Update localstate if prop changes remotely
+  React.useEffect(() => {
+    setLocalProjectName(projectName);
+  }, [projectName]);
 
   if (!isOpen) return null;
 
@@ -142,10 +154,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <p className="text-[13px] text-text-muted mt-1">{session?.user?.email || t.notUpdated}</p>
                 </div>
               </div>
-              <div className="bg-surface-container border border-border rounded-[4px] p-4">
+              <div className="bg-surface-container border border-border rounded-[4px] p-4 mb-4">
                 <p className="text-[13px] text-text-secondary leading-relaxed">
                   {t.linkMsg}
                 </p>
+              </div>
+              <div className="bg-surface-container border border-border rounded-[4px] p-4">
+                <label className="block text-[13px] font-bold text-text-main mb-2 tracking-wide uppercase">{t.projectNameLabel}</label>
+                <div className="flex gap-3">
+                  <input 
+                    type="text" 
+                    value={localProjectName}
+                    onChange={(e) => setLocalProjectName(e.target.value)}
+                    className="flex-1 bg-surface border border-border hover:border-border-hover focus:border-primary rounded-[4px] px-3 py-2 text-[13px] text-text-main outline-none transition-colors"
+                  />
+                  <button 
+                    onClick={() => onSaveProjectName(localProjectName)}
+                    className="bg-primary hover:opacity-90 text-background px-4 py-2 rounded-[4px] font-bold text-[13px] transition-colors cursor-pointer"
+                  >
+                    {t.saveProjectName}
+                  </button>
+                </div>
               </div>
             </div>
           )}

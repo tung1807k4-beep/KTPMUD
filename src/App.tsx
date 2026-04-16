@@ -50,7 +50,7 @@ const translations = {
     archive: 'Lưu trữ',
     newProject: 'Dự án mới',
     help: 'Trợ giúp',
-    chiefArchitect: 'Kiến trúc sư Trưởng',
+    defaultProjectName: 'Dự án của tôi',
     searchPlaceholder: 'Tìm kiếm công việc...',
     notifications: 'Thông báo',
     markAllRead: 'Đánh dấu đã đọc tất cả',
@@ -94,8 +94,8 @@ const translations = {
     dueSoon: 'Sắp đến hạn: ',
     deadline: 'Hạn chót: ',
     closedAt: 'Đóng lúc ',
-    adminPro: 'Quản trị Pro',
-    enterprisePlan: 'Gói Doanh nghiệp',
+    adminPro: 'Quản lý dự án\ncá nhân',
+    enterprisePlan: 'Phiên bản Miễn phí',
     loginGoogle: 'Đăng nhập bằng Google',
     loginMessage: 'Đăng nhập để truy cập không gian làm việc của bạn',
     toastAddSuccess: 'Thêm công việc thành công!'
@@ -108,7 +108,7 @@ const translations = {
     archive: 'Archive',
     newProject: 'New Project',
     help: 'Help',
-    chiefArchitect: 'Chief Architect',
+    defaultProjectName: 'My Project',
     searchPlaceholder: 'Search tasks...',
     notifications: 'Notifications',
     markAllRead: 'Mark all as read',
@@ -152,8 +152,8 @@ const translations = {
     dueSoon: 'Due soon: ',
     deadline: 'Deadline: ',
     closedAt: 'Closed at ',
-    adminPro: 'Admin Pro',
-    enterprisePlan: 'Enterprise Plan',
+    adminPro: 'Personal Project\nManagement',
+    enterprisePlan: 'Free Version',
     loginGoogle: 'Sign in with Google',
     loginMessage: 'Sign in to access your workspace',
     toastAddSuccess: 'Task added successfully!'
@@ -162,6 +162,7 @@ const translations = {
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
+  const [projectName, setProjectName] = useState<string>('');
   const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'team' | 'analytics' | 'archive'>('projects');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -222,12 +223,20 @@ export default function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (session?.user?.id) {
+        const storedName = localStorage.getItem(`project_name_${session.user.id}`);
+        if (storedName) setProjectName(storedName);
+      }
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session?.user?.id) {
+        const storedName = localStorage.getItem(`project_name_${session.user.id}`);
+        if (storedName) setProjectName(storedName);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -427,6 +436,14 @@ export default function App() {
     }
   };
 
+  const handleSaveProjectName = (name: string) => {
+    setProjectName(name);
+    if (session?.user?.id) {
+      localStorage.setItem(`project_name_${session.user.id}`, name);
+      showToast(language === 'vi' ? 'Lưu tên dự án thành công!' : 'Project name saved successfully!', 'success');
+    }
+  };
+
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination || !session) return;
 
@@ -589,7 +606,7 @@ export default function App() {
             <PenTool size={24} />
           </div>
           <div>
-            <h2 className="text-[18px] font-bold text-primary tracking-[4px] uppercase">{translations[language].adminPro}</h2>
+            <h2 className="text-[14px] font-bold text-primary tracking-[2px] uppercase whitespace-pre-line leading-tight">{translations[language].adminPro}</h2>
             <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold mt-1">{translations[language].enterprisePlan}</p>
           </div>
         </div>
@@ -669,7 +686,7 @@ export default function App() {
         {/* TopNavBar Component */}
         <header className="flex justify-between items-center w-full mb-12">
           <div className="flex items-center gap-8 flex-1">
-            <h1 className="text-[32px] font-light tracking-[-1px] text-text-main">{translations[language].chiefArchitect}</h1>
+            <h1 className="text-[32px] font-light tracking-[-1px] text-text-main">{projectName || translations[language].defaultProjectName}</h1>
             <div className="relative w-full max-w-md ml-8">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
               <input 
@@ -1240,6 +1257,8 @@ export default function App() {
         }}
         tasks={tasks}
         onClearAll={handleClearAllTasks}
+        projectName={projectName || translations[language].defaultProjectName}
+        onSaveProjectName={handleSaveProjectName}
       />
     </div>
   );
