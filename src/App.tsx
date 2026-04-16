@@ -41,6 +41,27 @@ export type Task = {
   due_date?: string | null;
 };
 
+const translations = {
+  vi: {
+    dashboard: 'Bảng điều khiển',
+    projects: 'Dự án',
+    team: 'Nhóm',
+    analytics: 'Phân tích',
+    archive: 'Lưu trữ',
+    newProject: 'Dự án mới',
+    help: 'Trợ giúp'
+  },
+  en: {
+    dashboard: 'Dashboard',
+    projects: 'Projects',
+    team: 'Team',
+    analytics: 'Analytics',
+    archive: 'Archive',
+    newProject: 'New Project',
+    help: 'Help'
+  }
+};
+
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'team' | 'analytics' | 'archive'>('projects');
@@ -50,6 +71,7 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [language, setLanguage] = useState<'vi' | 'en'>('vi');
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [dismissedNotifIds, setDismissedNotifIds] = useState<string[]>([]);
@@ -71,9 +93,13 @@ export default function App() {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
+    const savedLang = localStorage.getItem('language') as 'vi' | 'en';
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const initialDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
     setIsDarkMode(initialDark);
+    if (savedLang && (savedLang === 'vi' || savedLang === 'en')) {
+      setLanguage(savedLang);
+    }
     if (initialDark) {
       document.documentElement.classList.add('dark');
     } else {
@@ -286,6 +312,19 @@ export default function App() {
     }
   };
 
+  const handleClearAllTasks = async () => {
+    if (!session) return;
+    try {
+      const { error } = await supabase.from('tasks').delete().neq('id', 'dummy');
+      if (error) throw error;
+      setTasks([]);
+      showToast(language === 'en' ? 'All data cleared successfully!' : 'Đã xóa toàn bộ dữ liệu thành công!', 'success');
+    } catch (error) {
+      console.error('Error clearing data:', error);
+      showToast(language === 'en' ? 'Failed to clear data.' : 'Lỗi khi xóa dữ liệu. Vui lòng thử lại.', 'error');
+    }
+  };
+
   const onDragEnd = async (result: DropResult) => {
     if (!result.destination || !session) return;
 
@@ -459,7 +498,7 @@ export default function App() {
               >
                 <div className={`w-1.5 h-1.5 bg-primary rounded-full transition-opacity ${currentView === 'dashboard' ? 'opacity-100' : 'opacity-0'}`}></div>
                 <LayoutGrid size={16} />
-                <span>Bảng điều khiển</span>
+                <span>{translations[language].dashboard}</span>
               </button>
             </li>
             <li className="mb-6">
@@ -469,7 +508,7 @@ export default function App() {
               >
                 <div className={`w-1.5 h-1.5 bg-primary rounded-full transition-opacity ${currentView === 'projects' ? 'opacity-100' : 'opacity-0'}`}></div>
                 <ClipboardList size={16} />
-                <span>Dự án</span>
+                <span>{translations[language].projects}</span>
               </button>
             </li>
             <li className="mb-6">
@@ -479,7 +518,7 @@ export default function App() {
               >
                 <div className={`w-1.5 h-1.5 bg-primary rounded-full transition-opacity ${currentView === 'team' ? 'opacity-100' : 'opacity-0'}`}></div>
                 <Users size={16} />
-                <span>Nhóm</span>
+                <span>{translations[language].team}</span>
               </button>
             </li>
             <li className="mb-6">
@@ -489,7 +528,7 @@ export default function App() {
               >
                 <div className={`w-1.5 h-1.5 bg-primary rounded-full transition-opacity ${currentView === 'analytics' ? 'opacity-100' : 'opacity-0'}`}></div>
                 <BarChart2 size={16} />
-                <span>Phân tích</span>
+                <span>{translations[language].analytics}</span>
               </button>
             </li>
             <li className="mb-6">
@@ -499,7 +538,7 @@ export default function App() {
               >
                 <div className={`w-1.5 h-1.5 bg-primary rounded-full transition-opacity ${currentView === 'archive' ? 'opacity-100' : 'opacity-0'}`}></div>
                 <Archive size={16} />
-                <span>Lưu trữ</span>
+                <span>{translations[language].archive}</span>
               </button>
             </li>
           </ul>
@@ -509,11 +548,11 @@ export default function App() {
             onClick={() => setIsModalOpen(true)}
             className="w-full bg-transparent border border-border-hover text-text-main py-2 px-3 text-[11px] uppercase cursor-pointer hover:border-primary transition-colors"
           >
-            Dự án mới
+            {translations[language].newProject}
           </button>
           <a className="flex items-center gap-3 text-[13px] uppercase tracking-[1px] text-text-muted hover:text-text-main transition-colors cursor-pointer" href="#">
             <HelpCircle size={16} />
-            <span>Trợ giúp</span>
+            <span>{translations[language].help}</span>
           </a>
           <div className="text-[10px] text-text-muted tracking-[1px] mt-2">
             V2.4.0 • 2024
@@ -1090,6 +1129,13 @@ export default function App() {
         isDarkMode={isDarkMode}
         toggleTheme={toggleTheme}
         handleLogout={handleLogout}
+        language={language}
+        setLanguage={(lang) => {
+          setLanguage(lang);
+          localStorage.setItem('language', lang);
+        }}
+        tasks={tasks}
+        onClearAll={handleClearAllTasks}
       />
     </div>
   );
