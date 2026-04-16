@@ -20,7 +20,9 @@ import {
   Trash2,
   X,
   Edit2,
-  AlertCircle
+  AlertCircle,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { supabase } from './supabase';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
@@ -46,6 +48,7 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [newTask, setNewTask] = useState<Partial<Task>>({
     title: '',
     description: '',
@@ -57,6 +60,32 @@ export default function App() {
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
+  };
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+    setIsDarkMode(initialDark);
+    if (initialDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setIsDarkMode(prev => {
+      const newDark = !prev;
+      if (newDark) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+      return newDark;
+    });
   };
 
   useEffect(() => {
@@ -481,6 +510,9 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-6">
+            <button onClick={toggleTheme} className="text-text-muted hover:text-text-main transition-colors">
+              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <button className="text-text-muted hover:text-text-main transition-colors">
               <Bell size={18} />
             </button>
@@ -699,8 +731,8 @@ export default function App() {
                         }
                       </Pie>
                       <Tooltip 
-                        contentStyle={{ backgroundColor: '#0d0d0d', borderColor: '#1a1a1a', borderRadius: '4px', color: '#fff' }}
-                        itemStyle={{ color: '#fff' }}
+                        contentStyle={{ backgroundColor: isDarkMode ? '#0d0d0d' : '#ffffff', borderColor: isDarkMode ? '#1a1a1a' : '#e5e7eb', borderRadius: '4px', color: isDarkMode ? '#fff' : '#111827' }}
+                        itemStyle={{ color: isDarkMode ? '#fff' : '#111827' }}
                       />
                       <Legend verticalAlign="bottom" height={36} iconType="circle" />
                     </PieChart>
