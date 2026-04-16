@@ -49,6 +49,8 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [dismissedNotifIds, setDismissedNotifIds] = useState<string[]>([]);
   const [newTask, setNewTask] = useState<Partial<Task>>({
     title: '',
     description: '',
@@ -135,6 +137,35 @@ export default function App() {
       supabase.removeChannel(channel);
     };
   }, [session]);
+
+  const notifications = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const notifs: { type: 'overdue' | 'due_soon', task: Task, diffDays: number }[] = [];
+    
+    tasks.forEach(task => {
+      if (task.status === 'done' || !task.due_date || dismissedNotifIds.includes(task.id)) return;
+      
+      const dueDate = new Date(task.due_date);
+      dueDate.setHours(0, 0, 0, 0);
+      const diffTime = dueDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays < 0) {
+        notifs.push({ type: 'overdue', task, diffDays });
+      } else if (diffDays <= 1) {
+        notifs.push({ type: 'due_soon', task, diffDays });
+      }
+    });
+    
+    return notifs.sort((a, b) => a.diffDays - b.diffDays);
+  }, [tasks, dismissedNotifIds]);
+
+  const markAllAsRead = () => {
+    setDismissedNotifIds(prev => [...prev, ...notifications.map(n => n.task.id)]);
+    setIsNotifOpen(false);
+  };
 
   const fetchTasks = async () => {
     if (!session) return;
@@ -516,9 +547,66 @@ export default function App() {
             <button onClick={toggleTheme} className="text-text-muted hover:text-text-main transition-colors">
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <button className="text-text-muted hover:text-text-main transition-colors">
-              <Bell size={18} />
-            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setIsNotifOpen(!isNotifOpen)}
+                className="text-text-muted hover:text-text-main transition-colors relative"
+              >
+                <Bell size={18} />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    {notifications.length > 9 ? '9+' : notifications.length}
+                  </span>
+                )}
+              </button>
+
+              {isNotifOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsNotifOpen(false)} />
+                  <div className="absolute right-0 mt-3 w-80 bg-surface border border-border rounded-[8px] shadow-xl z-50 overflow-hidden">
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface-container">
+                      <h3 className="text-[13px] font-bold text-text-main">Thông báo</h3>
+                      {notifications.length > 0 && (
+                        <button 
+                          onClick={markAllAsRead}
+                          className="text-[11px] text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                        >
+                          Đánh dấu đã đọc tất cả
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-[300px] overflow-y-auto">
+                      {notifications.length > 0 ? (
+                        <ul className="flex flex-col">
+                          {notifications.map((notif, idx) => (
+                            <li key={`${notif.task.id}-${idx}`} className="px-4 py-3 border-b border-border hover:bg-surface-container transition-colors last:border-b-0">
+                              <div className="flex items-start gap-3">
+                                <span className="mt-0.5 text-[14px]">
+                                  {notif.type === 'overdue' ? '🔴' : '🟠'}
+                                </span>
+                                <div className="flex-1">
+                                  <p className="text-[13px] text-text-main leading-tight mb-1">
+                                    <span className="font-semibold">{notif.type === 'overdue' ? 'Quá hạn: ' : 'Sắp đến hạn: '}</span>
+                                    {notif.task.title}
+                                  </p>
+                                  <p className="text-[11px] text-text-muted">
+                                    Hạn chót: {new Date(notif.task.due_date!).toLocaleDateString('vi-VN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                  </p>
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div className="px-4 py-8 text-center">
+                          <p className="text-[13px] text-text-muted">Không có thông báo mới</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
             <button className="text-text-muted hover:text-text-main transition-colors">
               <Settings size={18} />
             </button>
