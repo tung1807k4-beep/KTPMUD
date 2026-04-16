@@ -576,7 +576,7 @@ export default function App() {
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">
             <PenTool size={32} />
           </div>
-          <h1 className="text-[24px] font-bold text-text-main tracking-[2px] uppercase mb-2">{translations[language].adminPro}</h1>
+          <h1 className="text-[20px] font-bold text-text-main tracking-[2px] uppercase mb-2 whitespace-pre-line leading-tight">{translations[language].adminPro}</h1>
           <p className="text-[13px] text-text-secondary mb-10">{translations[language].loginMessage}</p>
           <button 
             onClick={handleLogin}
