@@ -33,6 +33,7 @@ export type Task = {
   status: 'todo' | 'doing' | 'done';
   priority: 'CAO' | 'TRUNG BÌNH' | 'THẤP';
   created_at: string;
+  due_date?: string | null;
 };
 
 export default function App() {
@@ -48,7 +49,8 @@ export default function App() {
     title: '',
     description: '',
     status: 'todo',
-    priority: 'TRUNG BÌNH'
+    priority: 'TRUNG BÌNH',
+    due_date: ''
   });
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
@@ -139,12 +141,13 @@ export default function App() {
       status: (newTask.status as 'todo' | 'doing' | 'done') || 'todo',
       priority: (newTask.priority as 'CAO' | 'TRUNG BÌNH' | 'THẤP') || 'TRUNG BÌNH',
       created_at: new Date().toISOString(),
+      due_date: newTask.due_date || null,
     };
 
     const previousTasks = [...tasks];
     setTasks(prev => [taskToAdd, ...prev]);
     setIsModalOpen(false);
-    setNewTask({ title: '', description: '', status: 'todo', priority: 'TRUNG BÌNH' });
+    setNewTask({ title: '', description: '', status: 'todo', priority: 'TRUNG BÌNH', due_date: '' });
 
     const { data, error } = await supabase
       .from('tasks')
@@ -154,6 +157,7 @@ export default function App() {
           description: taskToAdd.description,
           status: taskToAdd.status,
           priority: taskToAdd.priority,
+          due_date: taskToAdd.due_date,
         }
       ])
       .select();
@@ -188,7 +192,7 @@ export default function App() {
     }
   };
 
-  const handleEditTask = async (e: React.FormEvent) => {
+  const updateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingTask || !session) return;
 
@@ -203,6 +207,7 @@ export default function App() {
         title: editingTask.title,
         description: editingTask.description,
         priority: editingTask.priority,
+        due_date: editingTask.due_date || null,
       })
       .eq('id', editingTask.id);
 
@@ -257,6 +262,30 @@ export default function App() {
 
   const renderTaskCard = (task: Task, index: number) => {
     const isDone = task.status === 'done';
+    
+    let dateColorClass = 'text-text-muted';
+    let displayDate = 'Chưa có hạn';
+
+    if (task.due_date) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const dueDate = new Date(task.due_date);
+      dueDate.setHours(0, 0, 0, 0);
+      
+      const diffTime = dueDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      displayDate = dueDate.toLocaleDateString('vi-VN', { day: '2-digit', month: 'short' });
+
+      if (!isDone) {
+        if (diffDays < 0) {
+          dateColorClass = 'text-red-500 font-medium';
+        } else if (diffDays <= 1) {
+          dateColorClass = 'text-orange-500 font-medium';
+        }
+      }
+    }
+
     return (
       <Draggable key={task.id} draggableId={task.id} index={index}>
         {(provided) => (
@@ -299,11 +328,11 @@ export default function App() {
               {task.description}
             </p>
             <div className="flex items-center justify-between border-t border-border pt-4">
-              <div className="flex items-center gap-2 text-text-muted">
+              <div className={`flex items-center gap-2 ${dateColorClass}`}>
                 {isDone ? <CheckCircle size={12} /> : <Calendar size={12} />}
                 <span className="text-[11px]">
                   {isDone ? 'Đóng lúc ' : ''}
-                  {new Date(task.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: 'short' })}
+                  {displayDate}
                 </span>
               </div>
               <img className={`w-6 h-6 rounded-full border border-border-hover bg-border ${isDone ? 'opacity-50' : ''}`} src={session?.user?.user_metadata?.avatar_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuCYt5asm6KLGQ6xl7p8LEaRCH1RcRiVP5DH3IVYc2aYKrB14RgfKrGSM-7F8RZ8plNQQG4zE5dt1lVuope_1KOVdfIzRAH0JHb4uSwXiy7Fcy0nMVlieqcfbDJXSvi1r-0tHiCfAwLaGBBpL2gNrEI9gyUij8xkz0YmEea87xI6eYilZWqaTBo8h8s-wahZjerZodgpd8yYyNd-cpWbI1fC0bvGMImMM-q5U6VjOI6EFZA07UkzNGo6s9BWd1QXdAbggTb548jX47I"} alt="Assignee" />
@@ -698,6 +727,15 @@ export default function App() {
                   </select>
                 </div>
               </div>
+              <div>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Ngày đến hạn</label>
+                <input 
+                  type="date" 
+                  value={newTask.due_date || ''}
+                  onChange={e => setNewTask({...newTask, due_date: e.target.value})}
+                  className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none"
+                />
+              </div>
               <div className="mt-4 flex justify-end gap-3">
                 <button 
                   type="button" 
@@ -728,7 +766,7 @@ export default function App() {
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleEditTask} className="flex flex-col gap-4">
+            <form onSubmit={updateTask} className="flex flex-col gap-4">
               <div>
                 <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Tiêu đề</label>
                 <input 
@@ -760,6 +798,15 @@ export default function App() {
                   <option value="TRUNG BÌNH">Trung bình</option>
                   <option value="THẤP">Thấp</option>
                 </select>
+              </div>
+              <div>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Ngày đến hạn</label>
+                <input 
+                  type="date" 
+                  value={editingTask.due_date || ''}
+                  onChange={e => setEditingTask({...editingTask, due_date: e.target.value})}
+                  className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none"
+                />
               </div>
               <div className="mt-4 flex justify-end gap-3">
                 <button 
