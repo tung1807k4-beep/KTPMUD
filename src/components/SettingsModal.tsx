@@ -18,54 +18,22 @@ interface SettingsModalProps {
 
 const translations = {
   vi: {
-    settings: 'Cài đặt',
-    info: 'Thông tin',
-    appearance: 'Giao diện',
-    system: 'Hệ thống',
-    advanced: 'Nâng cao',
-    userInfo: 'Thông tin Người dùng',
-    notUpdated: 'Chưa cập nhật email',
-    linkMsg: 'Tài khoản của bạn được liên kết qua hệ thống xác thực. Để tiếp tục trải nghiệm an toàn, vui lòng không chia sẻ thông tin đăng nhập.',
-    appSettings: 'Cài đặt Giao diện',
-    lightMode: 'Sáng (Light Mode)',
-    darkMode: 'Tối (Dark Mode)',
-    lang: 'Ngôn ngữ (Language)',
-    langMsg: 'Chọn ngôn ngữ giao diện chính (Sẽ áp dụng một số khu vực)',
-    themeMsg: 'Giao diện và ngôn ngữ sẽ được lưu trữ tự động trên thiết bị của bạn qua LocalStorage.',
-    systemSettings: 'Hệ thống',
-    logoutInfo: 'Hành động này sẽ đăng xuất tài khoản của bạn khỏi phiên làm việc hiện tại trên thiết bị. Bạn sẽ cần đăng nhập lại để tiếp tục sử dụng.',
-    logoutBtn: 'Đăng xuất ngay',
-    exportData: 'Xuất dữ liệu Kanban',
-    exportBtn: 'Xuất file Excel (CSV)',
-    clearData: 'Xóa toàn bộ dữ liệu',
-    clearBtn: 'Xóa toàn bộ dữ liệu',
-    clearWarning: 'Bạn có chắc chắn muốn xóa toàn bộ công việc không? Thao tác này không thể hoàn tác.',
-    cancel: 'Hủy'
+    settings: 'Cài đặt', information: 'Thông tin', appearance: 'Giao diện', advanced: 'Nâng cao', system: 'Hệ thống',
+    exportTitle: 'Xuất dữ liệu Kanban', exportDesc: 'Trích xuất toàn bộ Kanban Task hiện tại thành file Excel dạng CSV để lưu trữ hoặc chia sẻ.', exportBtn: 'Xuất ra Excel (CSV)',
+    clearTitle: 'Xóa toàn bộ dữ liệu', clearDesc: 'Xóa triệt để toàn bộ thẻ công việc trên bảng Kanban. Hành động này sẽ gọi trực tiếp lên Supabase API và không thể phục hồi.', clearBtn: 'Xóa tất cả dữ liệu',
+    logoutTitle: 'Đăng xuất tài khoản', logoutDesc: 'Thao tác này sẽ đăng xuất tài khoản của bạn khỏi phiên làm việc hiện tại. Bạn sẽ cần đăng nhập lại.', logoutBtn: 'Đăng xuất ngay',
+    userInfo: 'Thông tin Người dùng', notUpdated: 'Chưa cập nhật email', linkMsg: 'Tài khoản của bạn được liên kết qua hệ thống xác thực. Để tiếp tục trải nghiệm an toàn, vui lòng không chia sẻ thông tin đăng nhập.',
+    appSettings: 'Cài đặt Giao diện', lightMode: 'Sáng (Light Mode)', darkMode: 'Tối (Dark Mode)', lang: 'Ngôn ngữ (Language)', langMsg: 'Chọn ngôn ngữ giao diện chính (Sẽ áp dụng một số khu vực)', themeMsg: 'Giao diện và ngôn ngữ sẽ được lưu trữ tự động trên thiết bị của bạn qua LocalStorage.',
+    clearWarning: 'Bạn có chắc chắn muốn xóa toàn bộ công việc không? Thao tác này không thể hoàn tác.', confirmClear: 'Xác nhận Xóa', cancel: 'Hủy'
   },
   en: {
-    settings: 'Settings',
-    info: 'Information',
-    appearance: 'Appearance',
-    system: 'System',
-    advanced: 'Advanced',
-    userInfo: 'User Information',
-    notUpdated: 'Email not updated',
-    linkMsg: 'Your account is linked securely. Do not share your login credentials to continue having a safe experience.',
-    appSettings: 'Appearance Settings',
-    lightMode: 'Light Mode',
-    darkMode: 'Dark Mode',
-    lang: 'Language',
-    langMsg: 'Select primary user interface language (Applicable partially)',
-    themeMsg: 'Your appearance and language preferences will be automatically saved locally.',
-    systemSettings: 'System',
-    logoutInfo: 'This action will log out your account from the current session on this device. You will need to log in again.',
-    logoutBtn: 'Sign Out Now',
-    exportData: 'Export Kanban Data',
-    exportBtn: 'Export to Excel (CSV)',
-    clearData: 'Clear All Data',
-    clearBtn: 'Delete All Data',
-    clearWarning: 'Are you sure you want to delete all tasks? This action cannot be undone.',
-    cancel: 'Cancel'
+    settings: 'Settings', information: 'Information', appearance: 'Appearance', advanced: 'Advanced', system: 'System',
+    exportTitle: 'Export Kanban Data', exportDesc: 'Extract all current Kanban Tasks into a CSV file for backup or sharing.', exportBtn: 'Export to Excel (CSV)',
+    clearTitle: 'Clear All Data', clearDesc: 'Completely remove all tasks on the Kanban board. This action calls the Supabase API directly and cannot be undone.', clearBtn: 'Delete All Data',
+    logoutTitle: 'Sign Out Account', logoutDesc: 'This action will log out your account from the current session. You will need to log in again.', logoutBtn: 'Sign Out Now',
+    userInfo: 'User Information', notUpdated: 'Email not updated', linkMsg: 'Your account is linked securely. Do not share your login credentials to continue having a safe experience.',
+    appSettings: 'Appearance Settings', lightMode: 'Light Mode', darkMode: 'Dark Mode', lang: 'Language', langMsg: 'Select primary user interface language (Applicable partially)', themeMsg: 'Your appearance and language preferences will be automatically saved locally.',
+    clearWarning: 'Are you sure you want to delete all tasks? This action cannot be undone.', confirmClear: 'Confirm Delete', cancel: 'Cancel'
   }
 };
 
@@ -135,7 +103,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               onClick={() => setActiveTab('info')}
               className={`flex items-center gap-3 px-4 py-3 rounded-[4px] text-[13px] font-medium transition-colors outline-none cursor-pointer ${activeTab === 'info' ? 'bg-primary/10 text-primary' : 'text-text-secondary hover:bg-border/50 hover:text-text-main'}`}
             >
-              <User size={16} /> {t.info}
+              <User size={16} /> {t.information}
             </button>
             <button 
               onClick={() => setActiveTab('appearance')}
@@ -232,10 +200,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="mb-8 p-4 border border-border rounded-[8px] bg-surface-container">
                 <div className="flex items-center gap-3 mb-2">
                   <Download className="text-primary" size={18} />
-                  <h4 className="text-[14px] font-bold text-text-main">{t.exportData}</h4>
+                  <h4 className="text-[14px] font-bold text-text-main">{t.exportTitle}</h4>
                 </div>
                 <p className="text-[13px] text-text-secondary mb-4 leading-relaxed">
-                  Trích xuất toàn bộ Kanban Task hiện tại thành file Excel dạng CSV để lưu trữ hoặc chia sẻ.
+                  {t.exportDesc}
                 </p>
                 <button
                   onClick={handleExportCSV}
@@ -248,13 +216,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="bg-red-500/5 border border-red-500/20 rounded-[8px] p-6">
                 <div className="flex items-center gap-3 mb-2">
                   <AlertTriangle className="text-red-500" size={18} />
-                  <h4 className="text-[14px] font-bold text-red-500">{t.clearData}</h4>
+                  <h4 className="text-[14px] font-bold text-red-500">{t.clearTitle}</h4>
                 </div>
                 
                 {!confirmClear ? (
                   <>
                     <p className="text-[13px] text-text-secondary mb-6 leading-relaxed">
-                      Xóa triệt để toàn bộ thẻ công việc trên bảng Kanban. Hành động này sẽ gọi trực tiếp lên Supabase API và không thể phục hồi.
+                      {t.clearDesc}
                     </p>
                     <button
                       onClick={handleClear}
@@ -273,7 +241,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         onClick={handleClear}
                         className="bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-[4px] font-bold text-[13px] transition-colors cursor-pointer flex-1"
                       >
-                        Xác nhận Xóa
+                        {t.confirmClear}
                       </button>
                       <button
                         onClick={() => setConfirmClear(false)}
@@ -290,11 +258,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           {activeTab === 'system' && (
             <div className="animate-in fade-in duration-300">
-              <h3 className="text-[16px] font-bold text-text-main mb-6 uppercase tracking-[1px]">{t.systemSettings}</h3>
+              <h3 className="text-[16px] font-bold text-text-main mb-6 uppercase tracking-[1px]">{t.system}</h3>
               <div className="bg-surface-container border border-border rounded-[8px] p-6">
-                <h4 className="text-[14px] font-bold text-text-main mb-2">Đăng xuất tài khoản</h4>
+                <h4 className="text-[14px] font-bold text-text-main mb-2">{t.logoutTitle}</h4>
                 <p className="text-[13px] text-text-secondary mb-6 leading-relaxed">
-                  {t.logoutInfo}
+                  {t.logoutDesc}
                 </p>
                 <button
                   onClick={handleLogout}
