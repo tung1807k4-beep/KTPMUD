@@ -29,6 +29,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { Session } from '@supabase/supabase-js';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import toast, { Toaster } from 'react-hot-toast';
+import { SettingsModal } from './components/SettingsModal';
 
 export type Task = {
   id: string;
@@ -50,6 +51,7 @@ export default function App() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [dismissedNotifIds, setDismissedNotifIds] = useState<string[]>([]);
   const [newTask, setNewTask] = useState<Partial<Task>>({
     title: '',
@@ -513,13 +515,6 @@ export default function App() {
             <HelpCircle size={16} />
             <span>Trợ giúp</span>
           </a>
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-3 text-[13px] uppercase tracking-[1px] text-text-muted hover:text-text-main transition-colors cursor-pointer bg-transparent border-none p-0 text-left"
-          >
-            <LogOut size={16} />
-            <span>Đăng xuất</span>
-          </button>
           <div className="text-[10px] text-text-muted tracking-[1px] mt-2">
             V2.4.0 • 2024
           </div>
@@ -544,9 +539,6 @@ export default function App() {
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <button onClick={toggleTheme} className="text-text-muted hover:text-text-main transition-colors">
-              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
             <div className="relative">
               <button 
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
@@ -607,7 +599,10 @@ export default function App() {
                 </>
               )}
             </div>
-            <button className="text-text-muted hover:text-text-main transition-colors">
+            <button 
+              onClick={() => setIsSettingsModalOpen(true)}
+              className="text-text-muted hover:text-text-main transition-colors cursor-pointer"
+            >
               <Settings size={18} />
             </button>
             <div className="flex items-center gap-3">
@@ -1085,6 +1080,16 @@ export default function App() {
             },
           },
         }}
+      />
+      
+      {/* Settings Modal */}
+      <SettingsModal 
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        session={session}
+        isDarkMode={isDarkMode}
+        toggleTheme={toggleTheme}
+        handleLogout={handleLogout}
       />
     </div>
   );
