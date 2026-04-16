@@ -18,7 +18,9 @@ import {
   CheckCircle2,
   CheckCircle,
   Trash2,
-  X
+  X,
+  Edit2,
+  AlertCircle
 } from 'lucide-react';
 import { supabase } from './supabase';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
@@ -38,13 +40,21 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'dashboard' | 'projects' | 'team' | 'analytics' | 'archive'>('projects');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [newTask, setNewTask] = useState<Partial<Task>>({
     title: '',
     description: '',
     status: 'todo',
     priority: 'TRUNG BÌNH'
   });
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -71,7 +81,17 @@ export default function App() {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'tasks' },
         (payload) => {
-          fetchTasks();
+          if (payload.eventType === 'INSERT') {
+            setTasks(prev => {
+              if (prev.find(t => t.id === payload.new.id)) return prev;
+              const updated = [payload.new as Task, ...prev];
+              return updated.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            setTasks(prev => prev.map(t => t.id === payload.new.id ? payload.new as Task : t));
+          } else if (payload.eventType === 'DELETE') {
+            setTasks(prev => prev.filter(t => t.id !== payload.old.id));
+          }
         }
       )
       .subscribe();
@@ -111,27 +131,49 @@ export default function App() {
     e.preventDefault();
     if (!newTask.title || !session) return;
 
-    const { error } = await supabase
+    const tempId = `temp-${Date.now()}`;
+    const taskToAdd: Task = {
+      id: tempId,
+      title: newTask.title,
+      description: newTask.description || '',
+      status: (newTask.status as 'todo' | 'doing' | 'done') || 'todo',
+      priority: (newTask.priority as 'CAO' | 'TRUNG BÌNH' | 'THẤP') || 'TRUNG BÌNH',
+      created_at: new Date().toISOString(),
+    };
+
+    const previousTasks = [...tasks];
+    setTasks(prev => [taskToAdd, ...prev]);
+    setIsModalOpen(false);
+    setNewTask({ title: '', description: '', status: 'todo', priority: 'TRUNG BÌNH' });
+
+    const { data, error } = await supabase
       .from('tasks')
       .insert([
         {
-          title: newTask.title,
-          description: newTask.description,
-          status: newTask.status,
-          priority: newTask.priority,
+          title: taskToAdd.title,
+          description: taskToAdd.description,
+          status: taskToAdd.status,
+          priority: taskToAdd.priority,
         }
-      ]);
+      ])
+      .select();
 
     if (error) {
       console.error('Error adding task:', error);
-    } else {
-      setIsModalOpen(false);
-      setNewTask({ title: '', description: '', status: 'todo', priority: 'TRUNG BÌNH' });
+      showToast('Có lỗi xảy ra khi thêm công việc. Vui lòng thử lại.', 'error');
+      setTasks(previousTasks);
+    } else if (data && data.length > 0) {
+      setTasks(prev => prev.map(t => t.id === tempId ? data[0] : t));
+      showToast('Thêm công việc thành công!');
     }
   };
 
   const handleDeleteTask = async (id: string) => {
     if (!session) return;
+    
+    const previousTasks = [...tasks];
+    setTasks(prev => prev.filter(t => t.id !== id));
+
     const { error } = await supabase
       .from('tasks')
       .delete()
@@ -139,6 +181,37 @@ export default function App() {
       
     if (error) {
       console.error('Error deleting task:', error);
+      showToast('Có lỗi xảy ra khi xóa công việc. Vui lòng thử lại.', 'error');
+      setTasks(previousTasks);
+    } else {
+      showToast('Đã xóa công việc!');
+    }
+  };
+
+  const handleEditTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTask || !session) return;
+
+    const previousTasks = [...tasks];
+    // Optimistic update
+    setTasks(prev => prev.map(t => t.id === editingTask.id ? editingTask : t));
+    setEditingTask(null);
+
+    const { error } = await supabase
+      .from('tasks')
+      .update({
+        title: editingTask.title,
+        description: editingTask.description,
+        priority: editingTask.priority,
+      })
+      .eq('id', editingTask.id);
+
+    if (error) {
+      console.error('Error updating task:', error);
+      showToast('Có lỗi xảy ra khi cập nhật. Vui lòng thử lại.', 'error');
+      setTasks(previousTasks);
+    } else {
+      showToast('Cập nhật công việc thành công!');
     }
   };
 
@@ -150,6 +223,8 @@ export default function App() {
     if (source.droppableId !== destination.droppableId) {
       const newStatus = destination.droppableId as 'todo' | 'doing' | 'done';
       
+      const previousTasks = [...tasks];
+      
       // Optimistic update
       setTasks(prev => prev.map(t => t.id === draggableId ? { ...t, status: newStatus } : t));
 
@@ -160,16 +235,21 @@ export default function App() {
 
       if (error) {
         console.error('Error updating task status:', error);
-        fetchTasks(); // Revert on error
+        showToast('Có lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại.', 'error');
+        setTasks(previousTasks); // Revert on error
+      } else {
+        showToast('Đã cập nhật trạng thái!');
       }
     }
   };
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter(task => 
-      task.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [tasks, searchQuery]);
+    return tasks.filter(task => {
+      const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesPriority = priorityFilter === 'ALL' || task.priority === priorityFilter;
+      return matchesSearch && matchesPriority;
+    });
+  }, [tasks, searchQuery, priorityFilter]);
 
   const todoTasks = filteredTasks.filter(t => t.status === 'todo');
   const doingTasks = filteredTasks.filter(t => t.status === 'doing');
@@ -198,6 +278,12 @@ export default function App() {
                 {isDone ? (
                   <CheckCircle2 className="text-text-muted" size={16} />
                 ) : null}
+                <button 
+                  onClick={() => setEditingTask(task)}
+                  className="text-text-muted opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary"
+                >
+                  <Edit2 size={16} />
+                </button>
                 <button 
                   onClick={() => handleDeleteTask(task.id)}
                   className="text-text-muted opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500"
@@ -391,9 +477,19 @@ export default function App() {
                 <p className="text-[14px] text-text-secondary">Không gian làm việc tối giản / Giai đoạn Q4</p>
               </div>
               <div className="flex gap-3">
-                <button className="bg-transparent border border-border-hover text-text-main py-1.5 px-3 text-[11px] uppercase cursor-pointer hover:border-primary transition-colors flex items-center gap-2">
-                  <Filter size={14} /> Lọc
-                </button>
+                <div className="flex items-center gap-2 bg-transparent border border-border-hover rounded-[4px] px-3 py-1.5 focus-within:border-primary transition-colors">
+                  <Filter size={14} className="text-text-muted" />
+                  <select 
+                    value={priorityFilter}
+                    onChange={(e) => setPriorityFilter(e.target.value)}
+                    className="bg-transparent text-[11px] uppercase text-text-main outline-none cursor-pointer appearance-none"
+                  >
+                    <option value="ALL" className="bg-surface">Tất cả độ ưu tiên</option>
+                    <option value="CAO" className="bg-surface">Ưu tiên: Cao</option>
+                    <option value="TRUNG BÌNH" className="bg-surface">Ưu tiên: Trung bình</option>
+                    <option value="THẤP" className="bg-surface">Ưu tiên: Thấp</option>
+                  </select>
+                </div>
                 <button 
                   onClick={() => setIsModalOpen(true)}
                   className="bg-transparent border border-border-hover text-text-main py-1.5 px-3 text-[11px] uppercase cursor-pointer hover:border-primary transition-colors flex items-center gap-2"
@@ -619,6 +715,77 @@ export default function App() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Edit Task Modal */}
+      {editingTask && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
+          <div className="bg-surface border border-border p-8 rounded-[4px] w-full max-w-md">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-[18px] text-text-main font-bold">Chỉnh sửa công việc</h3>
+              <button onClick={() => setEditingTask(null)} className="text-text-muted hover:text-text-main">
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleEditTask} className="flex flex-col gap-4">
+              <div>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Tiêu đề</label>
+                <input 
+                  required
+                  type="text" 
+                  value={editingTask.title}
+                  onChange={e => setEditingTask({...editingTask, title: e.target.value})}
+                  className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none"
+                  placeholder="Nhập tiêu đề công việc..."
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Mô tả</label>
+                <textarea 
+                  value={editingTask.description}
+                  onChange={e => setEditingTask({...editingTask, description: e.target.value})}
+                  className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none min-h-[100px] resize-none"
+                  placeholder="Nhập mô tả chi tiết..."
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] uppercase tracking-[1px] text-text-dim mb-2">Độ ưu tiên</label>
+                <select 
+                  value={editingTask.priority}
+                  onChange={e => setEditingTask({...editingTask, priority: e.target.value as any})}
+                  className="w-full bg-surface-container border border-border rounded-[4px] py-2 px-3 focus:border-primary transition-all text-[13px] text-text-main outline-none appearance-none"
+                >
+                  <option value="CAO">Cao</option>
+                  <option value="TRUNG BÌNH">Trung bình</option>
+                  <option value="THẤP">Thấp</option>
+                </select>
+              </div>
+              <div className="mt-4 flex justify-end gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setEditingTask(null)}
+                  className="bg-transparent border border-border-hover text-text-main py-2 px-4 text-[11px] uppercase cursor-pointer hover:border-text-muted transition-colors"
+                >
+                  Hủy
+                </button>
+                <button 
+                  type="submit"
+                  className="bg-primary text-background py-2 px-4 text-[11px] uppercase font-bold cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                  Lưu thay đổi
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-3 rounded-[4px] shadow-lg z-[200] transition-all ${toast.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-500' : 'bg-red-500/10 border border-red-500/20 text-red-500'}`}>
+          {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+          <span className="text-[13px] font-medium">{toast.message}</span>
         </div>
       )}
     </div>
