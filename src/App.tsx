@@ -59,6 +59,7 @@ const translations = {
     greeting: 'Chào buổi sáng',
     projectBoard: 'Bảng Dự Án',
     workspace: 'Không gian làm việc tối giản / Giai đoạn Q4',
+    workspaceSubtitle: 'Không gian làm việc của',
     allPriorities: 'Tất cả độ ưu tiên',
     priorityHighFilter: 'Ưu tiên: Cao',
     priorityMedFilter: 'Ưu tiên: Trung bình',
@@ -116,6 +117,7 @@ const translations = {
     greeting: 'Good morning',
     projectBoard: 'Project Board',
     workspace: 'Minimalist Workspace / Q4 Phase',
+    workspaceSubtitle: 'Workspace of',
     allPriorities: 'All Priorities',
     priorityHighFilter: 'Priority: High',
     priorityMedFilter: 'Priority: Medium',
@@ -763,7 +765,7 @@ export default function App() {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-[11px] uppercase tracking-[2px] text-text-dim mb-2">{translations[language].projectBoard}</h2>
-                <p className="text-[14px] text-text-secondary">{translations[language].workspace}</p>
+                <p className="text-[14px] text-text-secondary">{translations[language].workspaceSubtitle} {session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name || translations[language].information || 'Bạn'}</p>
               </div>
               <div className="flex gap-3">
                 <div className="flex items-center gap-2 bg-transparent border border-border-hover rounded-[4px] px-3 py-1.5 focus-within:border-primary transition-colors">
