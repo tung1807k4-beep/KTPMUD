@@ -28,6 +28,7 @@ import { supabase } from './supabase';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Session } from '@supabase/supabase-js';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
+import toast, { Toaster } from 'react-hot-toast';
 
 export type Task = {
   id: string;
@@ -47,7 +48,6 @@ export default function App() {
   const [priorityFilter, setPriorityFilter] = useState('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [newTask, setNewTask] = useState<Partial<Task>>({
     title: '',
@@ -58,8 +58,11 @@ export default function App() {
   });
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    if (type === 'success') {
+      toast.success(message);
+    } else {
+      toast.error(message);
+    }
   };
 
   useEffect(() => {
@@ -969,12 +972,32 @@ export default function App() {
       )}
 
       {/* Toast Notification */}
-      {toast && (
-        <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-3 rounded-[4px] shadow-lg z-[200] transition-all ${toast.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-500' : 'bg-red-500/10 border border-red-500/20 text-red-500'}`}>
-          {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-          <span className="text-[13px] font-medium">{toast.message}</span>
-        </div>
-      )}
+      <Toaster 
+        position="bottom-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: isDarkMode ? '#1a1a1a' : '#ffffff',
+            color: isDarkMode ? '#ffffff' : '#111827',
+            border: `1px solid ${isDarkMode ? '#333333' : '#e5e7eb'}`,
+            fontSize: '13px',
+            borderRadius: '4px',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+          },
+          success: {
+            iconTheme: {
+              primary: '#22c55e',
+              secondary: isDarkMode ? '#1a1a1a' : '#ffffff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: isDarkMode ? '#1a1a1a' : '#ffffff',
+            },
+          },
+        }}
+      />
     </div>
   );
 }
